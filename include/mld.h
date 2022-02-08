@@ -46,6 +46,8 @@
             if(ObjInsertIntoDb(list, node)) { assert(0); }              \
         }while(0);
 
+#define ACCESSFIELD(Object, Member) Object->Member
+
 
 
 /* ======================================= Structure Definiations ======================================= */
@@ -126,6 +128,9 @@ void printStructList(StructDbList * list);
 void printField(FieldsNode node);
 void printObjNode(ObjectDbnode * node);
 void printObjList(ObjectDbList * list);
+// print the values of all supported fields by mld library for the object record passed as argument
+void DumpObjectNode(ObjectDbnode * node); 
+
 
 // initializes the object records and returns a pointer to the list
 ObjectDbList * InitObjList(StructDbList * list);
@@ -138,13 +143,22 @@ StructDbNode * StructLookUp(StructDbList * list, const char * StructName);
 int ObjectLookUp(ObjectDbList * list, void * ptr);
 
 /* 
-// corresponds to calloc
+// corresponds to calloc(size_t, size_t)
 // allocates 'n' units of contiguous memory blocks for an object of type "StructName"
 // creates an object record for the object and adds it the record to the database
 // link the object record to the structure record based on the "StructName"
 // returns the pointer to the allocated object if successful otherwise NULL 
 */
 void * xcalloc(ObjectDbList * ObjectDb, size_t n, const char * StructName);
+/*
+// corresponds to free(void * ptr)
+// assert if the ptr passed as argument to xfree is not found in object database
+// if found :
+//  remove the object record from object db (but do not free it)
+//  finally free the actual object by invoking free(obj_rec->ptr)
+//  free object rec which is removed from object db 
+*/
+void xfree(void * ptr, ObjectDbList * list);
 
 
 /* ======================================= EOF ======================================= */

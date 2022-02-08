@@ -1,6 +1,10 @@
 #include "mld.h"
 #include <stdio.h>
 
+
+/* ======================================= Print Functions ======================================= */
+
+
 void printField(FieldsNode node)
 {
     printf("Name of the Field             : %s\n", node.FieldName);
@@ -103,6 +107,70 @@ void printObjList(ObjectDbList * list)
     }
 }
 
+// helper for DumpObjectNode
+void printVal(void * ptr, size_t offset, int type)
+{
+    switch (type)
+    {
+        case 0:
+            printf("%ud", *(unsigned short int *)(ptr + offset));
+            break;
+
+        case 1:
+            printf("%ud", *(unsigned int *)(ptr + offset));
+            break;
+
+        case 2:
+            printf("%d", *(int *)(ptr + offset));
+            break;
+
+        case 3:
+            printf("%s", (char *)(ptr + offset));
+            break;
+
+        case 4:
+            printf("pointer to 0x%x", (ptr + offset));
+            break;
+
+        case 5:
+            printf("%f", *(float *)(ptr + offset));
+            break;
+
+        case 6:
+            printf("%ld", *(double *)(ptr + offset));
+            break;
+
+        case 7:
+            printf("Structure present at 0x%x", (ptr + offset));
+            break;
+
+        default:
+            printf("UNSUPPORTED");
+            break;
+    }
+}
+
+// print the values of all supported fields by mld library for the object record passed as argument
+void DumpObjectNode(ObjectDbnode * node)
+{
+    char * Structname = node->StructNode->StructName;
+    for(int i = 0; i < node->n; i++)
+    {
+        void * temp = node->ptr + i;
+        for(int j = 0; j < node->StructNode->nFields; j++)
+        {
+            FieldsNode Field = (node)->StructNode->Fields[j];
+            printf("%s[%d]->%s: ", Structname, i, Field.FieldName);
+            printVal(temp, Field.Offset, Field.Type);
+            printf("\n");
+        }
+        printf("\n");
+    }
+    
+}
+
+/* ======================================= Structure Functions ======================================= */
+
 int StructInsertIntoDb(StructDbList * list, StructDbNode * node)
 {
     if(list->head == NULL)
@@ -184,6 +252,23 @@ int ObjInsertIntoDb(ObjectDbList * list, ObjectDbnode * node)
     return 0;
 }
 
+// int FindIndexOf(ObjectDbnode * node, char * Structname, void * ptr)
+// {
+//     ObjectDbnode * temp = node;
+//     int count = 0;
+//     while(temp != NULL)
+//     {
+//         if(strcmp(temp->StructNode->StructName, Structname) == 0)
+//         {
+//             if(temp->ptr == ptr) { return count; }
+//             count++;
+//         }
+//         temp = temp->next;
+//     }
+// }
+
+/* ======================================= Memory Functions ======================================= */
+
 /* 
 // corresponds to calloc
 // allocates 'n' units of contiguous memory blocks for an object of type "StructName"
@@ -198,4 +283,29 @@ void * xcalloc(ObjectDbList * ObjectDb, size_t n, const char * StructName)
     if(pointer == NULL) { return NULL; }
     REGOBJ(ObjectDb, pointer, n, temp);
     return pointer;
+}
+
+/*
+// corresponds to free(void * ptr)
+// assert if the ptr passed as argument to xfree is not found in object database
+// if found :
+//  remove the object record from object db (but do not free it)
+//  finally free the actual object by invoking free(obj_rec->ptr)
+//  free object rec which is removed from object db 
+*/
+void xfree(void * ptr, ObjectDbList * list)
+{
+    assert(ptr);
+    ObjectDbnode * temp = list->head;
+    while(temp != NULL)
+    {
+        if(temp->next == ptr) { break; }
+        temp = temp->next;
+    }
+    assert(temp);
+    ObjectDbnode * caughtptr = temp->next;
+    if (caughtptr->next == NULL) { temp->next = NULL; }
+    else { temp->next = caughtptr->next; }
+    free(caughtptr->ptr);
+    free(caughtptr);
 }
