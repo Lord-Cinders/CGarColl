@@ -14,35 +14,35 @@ void printField(FieldsNode node)
     
     switch (node.Type)
     {
-        case 0:
+        case UINT8:
             printf("DataType of the Field         : UINT8\n");
             break;
 
-        case 1:
+        case UINT32:
             printf("DataType of the Field         : UINT32\n");
             break;
 
-        case 2:
+        case INT32:
             printf("DataType of the Field         : INT32\n");
             break;
 
-        case 3:
+        case CHAR:
             printf("DataType of the Field         : CHAR\n");
             break;
 
-        case 4:
+        case OBJPTR:
             printf("DataType of the Field         : OBJPTR\n");
             break;
 
-        case 5:
+        case FLOAT:
             printf("DataType of the Field         : FLOAT\n");
             break;
 
-        case 6:
+        case DOUBLE:
             printf("DataType of the Field         : DOUBLE\n");
             break;
 
-        case 7:
+        case OBJSTRUCT:
             printf("DataType of the Field         : OBJSTRUCT\n");
             break;
 
@@ -112,35 +112,35 @@ void printVal(void * ptr, size_t offset, int type)
 {
     switch (type)
     {
-        case 0:
+        case UINT8:
             printf("%ud", *(unsigned short int *)(ptr + offset));
             break;
 
-        case 1:
+        case UINT32:
             printf("%ud", *(unsigned int *)(ptr + offset));
             break;
 
-        case 2:
+        case INT32:
             printf("%d", *(int *)(ptr + offset));
             break;
 
-        case 3:
+        case CHAR:
             printf("%s", (char *)(ptr + offset));
             break;
 
-        case 4:
+        case OBJPTR:
             printf("pointer to 0x%x", (ptr + offset));
             break;
 
-        case 5:
+        case FLOAT:
             printf("%f", *(float *)(ptr + offset));
             break;
 
-        case 6:
+        case DOUBLE:
             printf("%ld", *(double *)(ptr + offset));
             break;
 
-        case 7:
+        case OBJSTRUCT:
             printf("Structure present at 0x%x", (ptr + offset));
             break;
 

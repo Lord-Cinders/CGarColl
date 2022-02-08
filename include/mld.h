@@ -12,11 +12,11 @@
 #include <string.h>
 #include <assert.h>
 
+/* ======================================= Macros ======================================= */
+
 #define MAX_STRUCT_NAME_SIZE  128
 #define MAX_FIELD_NAME_SIZE   128
 
-
-/* ======================================= Macros ======================================= */
 // possible pointer dereferencing, use inbuilt offsetof() from <stddef.h>
 #define OFFSETOF(Struct, Member)  (size_t) &(((Struct *)0)->Member)   
 // returns the size of the member
