@@ -369,16 +369,17 @@ static void ExploreNodesFrom(ObjectDbList * list, ObjectDbnode * node)
     FieldsNode * field = node->StructNode->Fields;
     while(i < node->StructNode->nFields)
     {
-        if(field[i].Type == OBJPTR)
+        if(field[i].Type == OBJPTR || field[i].Type == OBJSTRUCT)
         {
             void * ptr = node->ptr;
             ObjectDbnode * temp = ObjectLookUp(list, (ptr + field[i].Offset));
-            if(temp != NULL) 
+            if(temp != NULL && temp->visited == false) 
             { 
                 temp->visited = true; 
                 ExploreNodesFrom(list, temp);
             }
         }
+        
         i++; 
     }
     ExploreNodesFrom(list, node);
