@@ -157,7 +157,7 @@ void DumpObjectNode(ObjectDbnode * node)
     char * Structname = node->StructNode->StructName;
     for(int i = 0; i < node->n; i++)
     {
-        void * temp = node->ptr + i;
+        void * temp = (node->ptr + (i * node->StructNode->StructSize));
         for(int j = 0; j < node->StructNode->nFields; j++)
         {
             FieldsNode Field = (node)->StructNode->Fields[j];
@@ -369,7 +369,7 @@ static void ExploreNodesFrom(ObjectDbList * list, ObjectDbnode * node)
     FieldsNode * field = node->StructNode->Fields;
     while(i < node->n) // obj may be initialized with multiple blocks in memory
     {   
-        void * ptr = (node->ptr + i); 
+        void * ptr = (node->ptr + (i * node->StructNode->StructSize)); 
         while(j < node->StructNode->nFields)
         {
             if(field[j].Type == OBJPTR) // obj can only point to other object if it points to other objects 
