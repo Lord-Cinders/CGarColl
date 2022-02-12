@@ -12,7 +12,7 @@ void printField(FieldsNode node)
     printf("Offset of the Field           : %ld\n", node.Offset);
     
     
-    switch (node.Type)
+    switch(node.Type)
     {
         case UINT8:
             printf("DataType of the Field         : UINT8\n");
@@ -53,7 +53,7 @@ void printField(FieldsNode node)
 
     if(node.NestedStruct != NULL) 
     { 
-         printf("Structure its nested in       : %s", node.NestedStruct);
+        printf("Structure its nested in       : %s", node.NestedStruct);
     }
     printf("\n\n\n");
 }
@@ -89,7 +89,8 @@ void printObjNode(ObjectDbnode * node)
 {
     printf("Addr of the Object                : 0x%x\n", node->ptr);
     printf("No of blocks in memory            : %ld\n", node->n);
-    printf("Type of the Object                : %s\n\n", node->StructNode->StructName);
+    printf("Type of the Object                : %s\n", node->StructNode->StructName);
+    printf("State of the Object               : %d\n\n", node->root);
 }
 
 void printObjList(ObjectDbList * list)
@@ -110,7 +111,7 @@ void printObjList(ObjectDbList * list)
 // helper for DumpObjectNode
 void printVal(void * ptr, size_t offset, int type)
 {
-    switch (type)
+    switch(type)
     {
         case UINT8:
             printf("%ud", *(unsigned short int *)(ptr + offset));
@@ -171,7 +172,7 @@ void DumpObjectNode(ObjectDbnode * node)
 
 /* ======================================= Structure Functions ======================================= */
 
-int StructInsertIntoDb(StructDbList * list, StructDbNode * node)
+static int StructInsertIntoDb(StructDbList * list, StructDbNode * node)
 {
     if(list->head == NULL)
     {
@@ -210,26 +211,27 @@ StructDbNode * StructLookUp(StructDbList * list, const char * structName)
 
 ObjectDbList * InitObjList(StructDbList * list)
 {
+    assert(list);
     ObjectDbList * temp = calloc(1, sizeof(ObjectDbList));
     temp->StructDb = list;
     return temp;
 }
 
-int ObjectLookUp(ObjectDbList * list, void * ptr)
+ObjectDbnode * ObjectLookUp(ObjectDbList * list, void * ptr)
 {
     ObjectDbnode * temp = list->head;
     while (temp != NULL)
     {
         if(ptr == temp->ptr)
         {
-            return 1;
+            return ptr;
         }
         temp = temp->next;
     }
-    return 0;
+    return NULL;
 }
 
-int ObjInsertIntoDb(ObjectDbList * list, ObjectDbnode * node)
+static int ObjInsertIntoDb(ObjectDbList * list, ObjectDbnode * node)
 {
     if(list->head == NULL)
     {
@@ -267,7 +269,7 @@ int ObjInsertIntoDb(ObjectDbList * list, ObjectDbnode * node)
 //     }
 // }
 
-/* ======================================= Memory Functions ======================================= */
+/* ======================================= API Functions ======================================= */
 
 /* 
 // corresponds to calloc
@@ -281,7 +283,7 @@ void * xcalloc(ObjectDbList * ObjectDb, size_t n, const char * StructName)
     StructDbNode * temp = StructLookUp(ObjectDb->StructDb, StructName);
     void * pointer = calloc(n, temp->StructSize);
     if(pointer == NULL) { return NULL; }
-    REGOBJ(ObjectDb, pointer, n, temp);
+    REGOBJ(ObjectDb, pointer, n, temp, false);
     return pointer;
 }
 
@@ -308,4 +310,95 @@ void xfree(void * ptr, ObjectDbList * list)
     else { temp->next = caughtptr->next; }
     free(caughtptr->ptr);
     free(caughtptr);
+}
+
+/*
+// API to mark an existing dynamic object as the root
+*/
+void RegisterObjectasRoot(ObjectDbList * list, void * ptr)
+{
+    ObjectDbnode * node = ptr;
+    assert(node);
+    node->root = true;
+}
+
+/*
+// API to keep track of globally created objects
+// creates a new ObjectNode of type 'StructName'
+// marks it as a root
+*/
+void RegisterGlobalVar(ObjectDbList * list, void * ptr, const char * StructName, size_t n)
+{
+    StructDbNode * StructPtr = StructLookUp(list->StructDb, StructName);
+    assert(StructPtr);
+    REGOBJ(list, ptr, n, StructPtr, true);
+
+}
+
+/* ======================================= MDL Functions ======================================= */
+
+static void InitMLD(ObjectDbList * list)
+{
+    assert(list);
+    ObjectDbnode * temp = list->head;
+    while(temp != NULL)
+    {
+        temp->visited = false;
+        temp = temp->next;
+    }
+}
+
+static ObjectDbnode * GetNearestRoot(ObjectDbList * list, ObjectDbnode * node)
+{
+    ObjectDbnode * temp = node ? node->ptr : list->head;
+    temp = temp->next;
+    while(temp != NULL)
+    {
+        if(temp->root == true)
+        {
+            return temp;
+        }
+        temp = temp->next;
+    }
+    return NULL;
+}
+
+static void ExploreNodesFrom(ObjectDbList * list, ObjectDbnode * node)
+{
+    size_t i = 0;
+    FieldsNode * field = node->StructNode->Fields;
+    while(i < node->StructNode->nFields)
+    {
+        if(field[i].Type == OBJPTR)
+        {
+            void * ptr = node->ptr;
+            ObjectDbnode * temp = ObjectLookUp(list, (ptr + field[i].Offset));
+            if(temp != NULL) 
+            { 
+                temp->visited = true; 
+                ExploreNodesFrom(list, temp);
+            }
+        }
+        i++; 
+    }
+    ExploreNodesFrom(list, node);
+}
+
+void MDLRun(ObjectDbList * list)
+{
+    InitMLD(list);
+    ObjectDbnode * temp = GetNearestRoot(list, NULL);
+    while (temp != NULL)
+    {
+        if(temp->visited == true)   
+        {
+            GetNearestRoot(list, temp);
+            continue;
+        }
+        temp->visited = true;
+        ExploreNodesFrom(list, temp);
+        temp = GetNearestRoot(list, temp);
+    }
+    
+
 }
