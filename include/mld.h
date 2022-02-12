@@ -183,7 +183,7 @@ void RegisterGlobalVar(ObjectDbList * list, void * ptr, const char * StructName,
 void RegisterObjectasRoot(ObjectDbList * list, void * ptr);
 
 
-// unflags all the object nodes
+// clears visited flag on all the object nodes
 static void InitMLD(ObjectDbList * list);
 
 // returns the nearest root object to the current node otherwise NULL
@@ -191,9 +191,16 @@ static ObjectDbnode * GetNearestRoot(ObjectDbList * list, ObjectDbnode * node);
 
 // explores nodes using dfs algorithm to find reachable nodes
 static void ExploreNodesFrom(ObjectDbList * list, ObjectDbnode * node);
-// 
-void MLDRun(ObjectDbList * list);
 
+/*
+// algorithm that detects memory leaks
+// all data structures in an application take on the form of a Directed Cyclic Graph
+// assumes that a root node is always reachable
+// a root node is an object, from which, every other object could be reached
+// the algorithm tries to visit all the nodes connecting to the root using depth first search
+// at the end of the run, all nodes that are not visited are unreachable, i.e., leaked objects
+*/ 
+void MLDRun(ObjectDbList * list);
 
 /* ======================================= EOF ======================================= */
 #endif

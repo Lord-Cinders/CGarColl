@@ -336,7 +336,7 @@ void RegisterGlobalVar(ObjectDbList * list, void * ptr, const char * StructName,
 }
 
 /* ======================================= MDL Functions ======================================= */
-
+// clears visited flag on all the object nodes
 static void InitMLD(ObjectDbList * list)
 {
     assert(list);
@@ -365,24 +365,29 @@ static ObjectDbnode * GetNearestRoot(ObjectDbList * list, ObjectDbnode * node)
 
 static void ExploreNodesFrom(ObjectDbList * list, ObjectDbnode * node)
 {
-    size_t i = 0;
+    size_t i = 0, j = 0;
     FieldsNode * field = node->StructNode->Fields;
-    while(i < node->StructNode->nFields)
-    {
-        if(field[i].Type == OBJPTR || field[i].Type == OBJSTRUCT)
+    while(i < node->n) // obj may be initialized with multiple blocks in memory
+    {   
+        void * ptr = (node->ptr + i); 
+        while(j < node->StructNode->nFields)
         {
-            void * ptr = node->ptr;
-            ObjectDbnode * temp = ObjectLookUp(list, (ptr + field[i].Offset));
-            if(temp != NULL && temp->visited == false) 
-            { 
-                temp->visited = true; 
-                ExploreNodesFrom(list, temp);
+            if(field[j].Type == OBJPTR) // obj can only point to other object if it points to other objects 
+            {
+                void * ObjPtr = (ptr + field[j].Offset);
+                if(ObjPtr == NULL) { continue; }
+                ObjectDbnode * temp = ObjectLookUp(list, ObjPtr); // get the pointer to the object referred in the current object
+                if(temp->visited == false) 
+                { 
+                    temp->visited = true; 
+                    ExploreNodesFrom(list, temp);
+                }
             }
+            j++; 
         }
-        
-        i++; 
+        i++;
     }
-    ExploreNodesFrom(list, node);
+    
 }
 
 void MDLRun(ObjectDbList * list)
@@ -401,5 +406,4 @@ void MDLRun(ObjectDbList * list)
         temp = GetNearestRoot(list, temp);
     }
     
-
 }
