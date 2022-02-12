@@ -172,7 +172,7 @@ void DumpObjectNode(ObjectDbnode * node)
 
 /* ======================================= Structure Functions ======================================= */
 
-static int StructInsertIntoDb(StructDbList * list, StructDbNode * node)
+int StructInsertIntoDb(StructDbList * list, StructDbNode * node)
 {
     if(list->head == NULL)
     {

@@ -145,7 +145,7 @@ void DumpObjectNode(ObjectDbnode * node);
 // initializes the object records and returns a pointer to the list
 ObjectDbList * InitObjList(StructDbList * list);
 // returns 0 if the node is successfully added otherwise 1.
-static int StructInsertIntoDb(StructDbList * list, StructDbNode * node);
+int StructInsertIntoDb(StructDbList * list, StructDbNode * node);
 static int ObjInsertIntoDb(ObjectDbList * list, ObjectDbnode * node);
 // searchs the table for a struct and returns the pointer to the node if found otherwise NULL
 StructDbNode * StructLookUp(StructDbList * list, const char * StructName);
@@ -187,10 +187,10 @@ void RegisterObjectasRoot(ObjectDbList * list, void * ptr);
 static void InitMLD(ObjectDbList * list);
 
 // returns the nearest root object to the current node otherwise NULL
-static ObjectDbnode * GetNearestRoot(ObjectDbnode * node);
+static ObjectDbnode * GetNearestRoot(ObjectDbList * list, ObjectDbnode * node);
 
 // explores nodes using dfs algorithm to find reachable nodes
-static void ExploreNodesFrom(ObjectDbnode * node);
+static void ExploreNodesFrom(ObjectDbList * list, ObjectDbnode * node);
 // 
 void MLDRun(ObjectDbList * list);
 
