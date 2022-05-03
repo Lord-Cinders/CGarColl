@@ -151,7 +151,7 @@ int ObjInsertIntoDb(ObjectDbList * list, ObjectDbnode * node);
 // searchs the table for a struct and returns the pointer to the node if found otherwise NULL
 StructDbNode * StructLookUp(StructDbList * list, const char * StructName);
 // searchs the table for an object pointer and returns the pointer if found otherwise NULL
-static ObjectDbnode * ObjectLookUp(ObjectDbList * list, void * ptr);
+ObjectDbnode * ObjectLookUp(ObjectDbList * list, void * ptr);
 
 /* ======================================= API Functions ======================================= */
 
@@ -184,6 +184,7 @@ void RegisterGlobalVar(ObjectDbList * list, void * ptr, const char * StructName,
 // API to mark an existing dynamic object as the root
 */
 void RegisterObjectasRoot(ObjectDbList * list, void * ptr);
+void * AllocateObjectasRoot(ObjectDbList * objlist, StructDbList * structlist, void * ptr, const char * structname, size_t count);
 
 // adds primitive data types into the StructDB for direct array allocation
 void InitBasicMLD(StructDbList * list);

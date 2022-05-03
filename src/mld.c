@@ -238,6 +238,7 @@ int ObjInsertIntoDb(ObjectDbList * list, ObjectDbnode * node)
     if(list->head == NULL)
     {
         list->head = node;
+        list->head->next = NULL;
         list->size++;
         return 0;
     }
@@ -304,7 +305,7 @@ void xfree(void * ptr, ObjectDbList * list)
     ObjectDbnode * temp = list->head;
     while(temp != NULL)
     {
-        if(temp->next == ptr) { break; }
+        if(temp->next->ptr == ptr) { break; }
         temp = temp->next;
     }
     assert(temp);
@@ -320,9 +321,16 @@ void xfree(void * ptr, ObjectDbList * list)
 */
 void RegisterObjectasRoot(ObjectDbList * list, void * ptr)
 {
-    ObjectDbnode * node = ptr;
+    ObjectDbnode * node = ObjectLookUp(list, ptr);
     assert(node);
     node->root = true;
+}
+
+void * AllocateObjectasRoot(ObjectDbList * objlist, StructDbList * structlist, void * ptr, const char * structname, size_t count)
+{
+    StructDbNode * node = StructLookUp(structlist, structname);
+    assert(node);
+    REGOBJ(objlist, ptr, count, node, true);
 }
 
 /*
@@ -375,7 +383,6 @@ static void InitMLD(ObjectDbList * list)
 static ObjectDbnode * GetNearestRoot(ObjectDbList * list, ObjectDbnode * node)
 {
     ObjectDbnode * temp = node ? node->ptr : list->head;
-    temp = temp->next;
     while(temp != NULL)
     {
         if(temp->root == true)
@@ -394,7 +401,7 @@ static void ExploreNodesFrom(ObjectDbList * list, ObjectDbnode * node)
 
     assert(node->visited);
 
-    if(node->StructNode->nFields == 0) {return 0;} // if primitive, there are no leaks
+    if(node->StructNode->nFields == 0) { return; } // if primitive, there are no leaks
     while(i < node->n) // obj may be initialized with multiple blocks in memory
     {   
         void * ptr = (node->ptr + (i * node->StructNode->StructSize)); 
@@ -405,9 +412,11 @@ static void ExploreNodesFrom(ObjectDbList * list, ObjectDbnode * node)
                 void * ObjPtr = (ptr + field[j].Offset);
                 if(ObjPtr == NULL) { continue; }
                 ObjectDbnode * temp = ObjectLookUp(list, ObjPtr); // get the pointer to the object referred in the current object
+                assert(temp);
                 if(temp->visited == false) 
                 { 
                     temp->visited = true; 
+                    DumpObjectNode(temp);
                     ExploreNodesFrom(list, temp);
                 }
             }
@@ -432,5 +441,15 @@ void MLDRun(ObjectDbList * list)
         ExploreNodesFrom(list, temp);
         temp = GetNearestRoot(list, temp);
     }
-    
+    temp = list->head;
+
+    printf("Leaked Nodes are: \n");
+    while(temp != NULL)
+    {
+        if(temp->visited == false)
+        {
+            printObjNode(temp);
+        }
+        temp = temp->next;
+    }    
 }
