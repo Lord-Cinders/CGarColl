@@ -149,9 +149,9 @@ ObjectDbList * InitObjList(StructDbList * list);
 int StructInsertIntoDb(StructDbList * list, StructDbNode * node);
 int ObjInsertIntoDb(ObjectDbList * list, ObjectDbnode * node);
 // searchs the table for a struct and returns the pointer to the node if found otherwise NULL
-StructDbNode * StructLookUp(StructDbList * list, const char * StructName);
+static StructDbNode * StructLookUp(StructDbList * list, const char * StructName);
 // searchs the table for an object pointer and returns the pointer if found otherwise NULL
-ObjectDbnode * ObjectLookUp(ObjectDbList * list, void * ptr);
+static ObjectDbnode * ObjectLookUp(ObjectDbList * list, void * ptr);
 
 /* ======================================= API Functions ======================================= */
 

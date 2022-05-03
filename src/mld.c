@@ -197,7 +197,7 @@ int StructInsertIntoDb(StructDbList * list, StructDbNode * node)
     return 0;
 }
 
-StructDbNode * StructLookUp(StructDbList * list, const char * structName)
+static StructDbNode * StructLookUp(StructDbList * list, const char * structName)
 {
     StructDbNode * temp = list->head;
     while(temp != NULL)
@@ -219,7 +219,7 @@ ObjectDbList * InitObjList(StructDbList * list)
     return temp;
 }
 
-ObjectDbnode * ObjectLookUp(ObjectDbList * list, void * ptr)
+static ObjectDbnode * ObjectLookUp(ObjectDbList * list, void * ptr)
 {
     ObjectDbnode * temp = list->head;
     while (temp != NULL)
