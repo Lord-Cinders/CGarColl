@@ -67,6 +67,8 @@ void printStructNode(StructDbNode * node)
     {
         printField(node->Fields[i]);
     }
+
+    
 }
 
 void printStructList(StructDbList * list)
@@ -231,7 +233,7 @@ ObjectDbnode * ObjectLookUp(ObjectDbList * list, void * ptr)
     return NULL;
 }
 
-static int ObjInsertIntoDb(ObjectDbList * list, ObjectDbnode * node)
+int ObjInsertIntoDb(ObjectDbList * list, ObjectDbnode * node)
 {
     if(list->head == NULL)
     {
@@ -280,6 +282,7 @@ static int ObjInsertIntoDb(ObjectDbList * list, ObjectDbnode * node)
 */
 void * xcalloc(ObjectDbList * ObjectDb, size_t n, const char * StructName)
 {
+    
     StructDbNode * temp = StructLookUp(ObjectDb->StructDb, StructName);
     void * pointer = calloc(n, temp->StructSize);
     if(pointer == NULL) { return NULL; }
@@ -335,10 +338,31 @@ void RegisterGlobalVar(ObjectDbList * list, void * ptr, const char * StructName,
 
 }
 
+// adds primitive data types into the StructDB for direct array allocation
+void InitBasicMLD(StructDbList * list)
+{
+    // FieldsNode intfield    = {"int",    sizeof(int),    0, INT32,  "NULL"};
+    // FieldsNode charfield   = {"char",   sizeof(char),   0, CHAR,   "NULL"};
+    // FieldsNode floatfield  = {"float",  sizeof(float),  0, FLOAT,  "NULL"};
+    // FieldsNode doublefield = {"double", sizeof(double), 0, DOUBLE, "NULL"};
+
+    // REGSTRUCT(list, int,    &intfield);
+    // REGSTRUCT(list, char,   &charfield);
+    // REGSTRUCT(list, float,  &floatfield);
+    // REGSTRUCT(list, double, &doublefield);
+
+    REGSTRUCT(list, int,    0);
+    REGSTRUCT(list, char,   0);
+    REGSTRUCT(list, float,  0);
+    REGSTRUCT(list, double, 0);
+
+}
+
 /* ======================================= MDL Functions ======================================= */
 // clears visited flag on all the object nodes
 static void InitMLD(ObjectDbList * list)
 {
+
     assert(list);
     ObjectDbnode * temp = list->head;
     while(temp != NULL)
@@ -387,10 +411,9 @@ static void ExploreNodesFrom(ObjectDbList * list, ObjectDbnode * node)
         }
         i++;
     }
-    
 }
 
-void MDLRun(ObjectDbList * list)
+void MLDRun(ObjectDbList * list)
 {
     InitMLD(list);
     ObjectDbnode * temp = GetNearestRoot(list, NULL);

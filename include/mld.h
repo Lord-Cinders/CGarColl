@@ -30,8 +30,8 @@
             StructDbNode * node = calloc(1, sizeof(StructDbNode));      \
             strncpy(node->StructName, #Struct, MAX_STRUCT_NAME_SIZE);   \
             node->StructSize = sizeof(Struct);                          \
-            node->nFields  = sizeof(Fieldinfo) / sizeof(FieldsNode);    \
-            node->Fields = Fieldinfo;                                   \
+            node->nFields    = sizeof(Fieldinfo) / sizeof(FieldsNode);  \
+            node->Fields     = Fieldinfo;                               \
             if(StructInsertIntoDb(list, node)) { assert(0); }           \
         }while(0)
 
@@ -39,12 +39,12 @@
         do{                                                             \
             assert(!ObjectLookUp(list, pointer));                       \
             ObjectDbnode * node = calloc(1, sizeof(ObjectDbnode));      \
-            node->ptr = pointer;                                        \
-            node->n = count;                                            \
-            node->StructNode = StructureNode;                           \
-            node->next = NULL;                                          \
-            node->root = Bool;                                          \
-            node->visited = Bool;                                       \
+            node->ptr           = pointer;                              \
+            node->n             = count;                                \
+            node->StructNode    = StructureNode;                        \
+            node->next          = NULL;                                 \
+            node->root          = Bool;                                 \
+            node->visited       = Bool;                                 \
             if(ObjInsertIntoDb(list, node)) { assert(0); }              \
         }while(0);
 
@@ -131,7 +131,7 @@ typedef struct ObjectDb
 
 
 
-/* ======================================= Functions ======================================= */
+/* ======================================= DataStructure Functions ======================================= */
 // print functions for debugging
 void printStructNode(StructDbNode * node);
 void printStructList(StructDbList * list);
@@ -144,13 +144,16 @@ void DumpObjectNode(ObjectDbnode * node);
 
 // initializes the object records and returns a pointer to the list
 ObjectDbList * InitObjList(StructDbList * list);
+
 // returns 0 if the node is successfully added otherwise 1.
 int StructInsertIntoDb(StructDbList * list, StructDbNode * node);
-static int ObjInsertIntoDb(ObjectDbList * list, ObjectDbnode * node);
+int ObjInsertIntoDb(ObjectDbList * list, ObjectDbnode * node);
 // searchs the table for a struct and returns the pointer to the node if found otherwise NULL
 StructDbNode * StructLookUp(StructDbList * list, const char * StructName);
 // searchs the table for an object pointer and returns the pointer if found otherwise NULL
-ObjectDbnode * ObjectLookUp(ObjectDbList * list, void * ptr);
+static ObjectDbnode * ObjectLookUp(ObjectDbList * list, void * ptr);
+
+/* ======================================= API Functions ======================================= */
 
 /* 
 // corresponds to calloc(size_t, size_t)
@@ -182,15 +185,8 @@ void RegisterGlobalVar(ObjectDbList * list, void * ptr, const char * StructName,
 */
 void RegisterObjectasRoot(ObjectDbList * list, void * ptr);
 
-
-// clears visited flag on all the object nodes
-static void InitMLD(ObjectDbList * list);
-
-// returns the nearest root object to the current node otherwise NULL
-static ObjectDbnode * GetNearestRoot(ObjectDbList * list, ObjectDbnode * node);
-
-// explores nodes using dfs algorithm to find reachable nodes
-static void ExploreNodesFrom(ObjectDbList * list, ObjectDbnode * node);
+// adds primitive data types into the StructDB for direct array allocation
+void InitBasicMLD(StructDbList * list);
 
 /*
 // algorithm that detects memory leaks
@@ -201,6 +197,17 @@ static void ExploreNodesFrom(ObjectDbList * list, ObjectDbnode * node);
 // at the end of the run, all nodes that are not visited are unreachable, i.e., leaked objects
 */ 
 void MLDRun(ObjectDbList * list);
+
+/* ======================================= MDL Functions ======================================= */
+
+// clears visited flag on all the object nodes
+static void InitMLD(ObjectDbList * list);
+
+// returns the nearest root object to the current node otherwise NULL
+static ObjectDbnode * GetNearestRoot(ObjectDbList * list, ObjectDbnode * node);
+
+// explores nodes using dfs algorithm to find reachable nodes
+static void ExploreNodesFrom(ObjectDbList * list, ObjectDbnode * node);
 
 /* ======================================= EOF ======================================= */
 #endif
