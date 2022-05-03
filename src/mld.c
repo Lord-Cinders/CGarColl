@@ -391,6 +391,10 @@ static void ExploreNodesFrom(ObjectDbList * list, ObjectDbnode * node)
 {
     size_t i = 0, j = 0;
     FieldsNode * field = node->StructNode->Fields;
+
+    assert(node->visited);
+
+    if(node->StructNode->nFields == 0) {return 0;} // if primitive, there are no leaks
     while(i < node->n) // obj may be initialized with multiple blocks in memory
     {   
         void * ptr = (node->ptr + (i * node->StructNode->StructSize)); 
