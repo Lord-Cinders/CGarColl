@@ -109,6 +109,11 @@ typedef struct Fields
 
 }FieldsNode;
 ````
+utility fuctions available for this structure are:
+````
+void printField(FieldsNode node);
+````
+
 To link the fields of a `struct` with its node, first, create an array of `FieldNodes` containing the initialization arrays of individual nodes using the macro `FIELDINFO(Struct, Fieldname, type, nestedstruct)`
 
 ````
@@ -116,11 +121,6 @@ FieldsNode fieldarray[] = {
         FIELDINFO(struct1, name1, DataType, nestedstruct),
         FIELDINFO(struct1, name2, DataType, nestedstruct)
     };
-````
-
-utility fuctions available for this structure are:
-````
-void printField(FieldsNode node);
 ````
 
 To register your Node, use the macro `#define REGSTRUCT(list, Struct, Fieldinfo)`.
