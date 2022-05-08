@@ -1,5 +1,5 @@
 # A Garbage Collector for C
-A tiny Grabage Collectior for C which works on the basic of reachability of objects to detect memory leaks.
+A tiny Grabage Collector for C which works on the basic of reachability of objects to detect memory leaks.
 
 ## Useage
 The library Provides two APIs for Dynamic memory allocation, they are:
