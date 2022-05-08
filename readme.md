@@ -26,7 +26,23 @@ void * xcalloc(ObjectDbList * ObjectDb, size_t n, const char * StructName);
 */
 void xfree(void * ptr, ObjectDbList * list);
 ````
+And two other APIs to record an object as a root object, they are:
 
+````
+/*
+// API to keep track of globally created objects
+// creates a new ObjectNode of type 'StructName'
+// marks it as a root
+*/
+void RegisterGlobalVar(ObjectDbList * list, void * ptr, const char * StructName, size_t n);
+````
+````
+/*
+// API to mark an existing dynamic object as the root
+*/
+void RegisterObjectasRoot(ObjectDbList * list, void * ptr);
+
+````
 
 The Library contains 3 data structures to keep track of and hold your object data.
 1. `StructDbList` - made out of StructDbNodes, where each node contains the information about a single `struct`. 
@@ -72,8 +88,10 @@ utility fuctions available for this structure are:
 // print functions for debugging
 void printStructNode(StructDbNode * node);
 void printStructList(StructDbList * list);
+
 // returns 0 if the node is successfully added otherwise 1.
 int StructInsertIntoDb(StructDbList * list, StructDbNode * node);
+
 // searchs the table for a struct and returns the pointer to the node if found otherwise NULL
 StructDbNode * StructLookUp(StructDbList * list, const char * StructName);
 ````
@@ -132,6 +150,92 @@ int main()
 
 ````
 
+3. `ObjectDbList` - Similar to `StructDbList`, is made out of `ObjectDbNode`, where each node represents a dynamically created object in your application.
+
+````
+struct ObjectDbnode
+{
+    void * ptr;                                 // pointer to the dynamic object
+    ObjectDbnode * next;                        // pointer to the next record in the database
+    size_t n;                                   // number of memory blocks assigned to the dynamic object
+    StructDbNode * StructNode;                  // class of the dynamic object
+    bool root;                                  // flag for root node
+    bool visited;                               // flag for mdl algorithm
+
+};
+````
+
+````
+typedef struct ObjectDb
+{
+    StructDbList * StructDb;                    // record of all structures present in the application
+    ObjectDbnode * head;                        // pointer to the first node in the list
+    size_t size;                                // number of nodes present in the list
+
+}ObjectDbList;
+````
+The List is created and initialized using `InitObjList(StructDbList * list)` 
+
+````
+ObjectDbList * objlist = InitObjList(strlist);
+````
+
+The nodes are dynamically added and deleted when the application calls `xcalloc` and `xfree`.
+
+utility fuctions available for this structure are:
+````
+// print functions for debugging
+void printObjNode(ObjectDbnode * node);
+void printObjList(ObjectDbList * list
+
+// print the Object with all its information stored in it
+void DumpObjectNode(ObjectDbnode * node); 
+
+// returns 0 if the node is successfully added otherwise 1.
+int ObjInsertIntoDb(ObjectDbList * list, ObjectDbnode * node);
+
+// searchs the table for an object pointer and returns the pointer if found otherwise NULL
+ObjectDbnode * ObjectLookUp(ObjectDbList * list, void * ptr);
+````
+
+TO detect Memory Leaks, The library provides the function `MLDRun(ObjectDbList * list)`, which detects and reports leaked objects inside memory.
 
 
+````
+typedef struct stdd
+{
+    char name[20];
+    int age;
+}stdd;
+typedef struct emp empt;
 
+int main()
+{
+    StructDbList * strlist = calloc(1, sizeof(StructDbList));
+    InitBasicMLD(strlist);
+    
+    FieldsNode fieldarray[] = {
+        FIELDINFO(stdd, name, CHAR, NULL),
+        FIELDINFO(stdd, age, INT32, NULL)
+    };
+    REGSTRUCT(strlist, stdd, fieldarray);
+
+    ObjectDbList * objlist = InitObjList(strlist);
+
+    stdd * temp = xcalloc(objlist, 1, "stdd");
+    stdd * t    = xcalloc(objlist, 2, "stdd"); // we are intentionally leaking this object
+
+    t[0].age = 69;
+    t[1].age = 100;
+
+    RegisterObjectasRoot(objlist, temp);
+
+    MLDRun(objlist);
+
+    xfree(temp, objlist);
+    xfree(t, objlist);
+
+    return 0;
+}
+
+````
