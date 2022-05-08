@@ -1,8 +1,8 @@
 /*
     Garbage Collector
     started on 7/2/22
+    completed on 9/5/22
     "another complaint on backpain" - Cinders22
-    never touching it again from 4/5/22
 */
 
 #ifndef _MLD_H_
