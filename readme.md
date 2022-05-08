@@ -198,9 +198,9 @@ int ObjInsertIntoDb(ObjectDbList * list, ObjectDbnode * node);
 ObjectDbnode * ObjectLookUp(ObjectDbList * list, void * ptr);
 ````
 
-TO detect Memory Leaks, The library provides the function `MLDRun(ObjectDbList * list)`, which detects and reports leaked objects inside memory.
+To detect Memory Leaks, The library provides the function `MLDRun(ObjectDbList * list)`, which detects and reports leaked objects inside memory.
 
-
+For example, consider
 ````
 typedef struct stdd
 {
@@ -239,3 +239,8 @@ int main()
 }
 
 ````
+
+At the end of the run, the funtion `MLDRun` reports the object we intentionally leaked along with all of its information.
+
+## Building and Linking
+To create an object file of the library just use the Makefile provided along with the code and run the `make` command. link the object file to your compiler path and include the header file to your application to start using the library.
