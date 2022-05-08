@@ -2,6 +2,7 @@
     Garbage Collector
     started on 7/2/22
     "another complaint on backpain" - Cinders22
+    never touching it again from 4/5/22
 */
 
 #ifndef _MLD_H_
@@ -149,9 +150,9 @@ ObjectDbList * InitObjList(StructDbList * list);
 int StructInsertIntoDb(StructDbList * list, StructDbNode * node);
 int ObjInsertIntoDb(ObjectDbList * list, ObjectDbnode * node);
 // searchs the table for a struct and returns the pointer to the node if found otherwise NULL
-static StructDbNode * StructLookUp(StructDbList * list, const char * StructName);
+StructDbNode * StructLookUp(StructDbList * list, const char * StructName);
 // searchs the table for an object pointer and returns the pointer if found otherwise NULL
-static ObjectDbnode * ObjectLookUp(ObjectDbList * list, void * ptr);
+ObjectDbnode * ObjectLookUp(ObjectDbList * list, void * ptr);
 
 /* ======================================= API Functions ======================================= */
 

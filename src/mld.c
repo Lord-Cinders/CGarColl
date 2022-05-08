@@ -197,12 +197,12 @@ int StructInsertIntoDb(StructDbList * list, StructDbNode * node)
     return 0;
 }
 
-static StructDbNode * StructLookUp(StructDbList * list, const char * structName)
+StructDbNode * StructLookUp(StructDbList * list, const char * StructName)
 {
     StructDbNode * temp = list->head;
     while(temp != NULL)
     {
-        if(strcmp(temp->StructName, structName) == 0)
+        if(strcmp(temp->StructName, StructName) == 0)
         {
             return temp;
         }
@@ -219,14 +219,14 @@ ObjectDbList * InitObjList(StructDbList * list)
     return temp;
 }
 
-static ObjectDbnode * ObjectLookUp(ObjectDbList * list, void * ptr)
+ObjectDbnode * ObjectLookUp(ObjectDbList * list, void * ptr)
 {
     ObjectDbnode * temp = list->head;
     while (temp != NULL)
     {
         if(ptr == temp->ptr)
         {
-            return ptr;
+            return temp;
         }
         temp = temp->next;
     }
@@ -326,12 +326,12 @@ void RegisterObjectasRoot(ObjectDbList * list, void * ptr)
     node->root = true;
 }
 
-void * AllocateObjectasRoot(ObjectDbList * objlist, StructDbList * structlist, void * ptr, const char * structname, size_t count)
-{
-    StructDbNode * node = StructLookUp(structlist, structname);
-    assert(node);
-    REGOBJ(objlist, ptr, count, node, true);
-}
+// void * AllocateObjectasRoot(ObjectDbList * objlist, StructDbList * structlist, void * ptr, const char * structname, size_t count)
+// {
+//     StructDbNode * node = StructLookUp(structlist, structname);
+//     assert(node);
+//     REGOBJ(objlist, ptr, count, node, true);
+// }
 
 /*
 // API to keep track of globally created objects
