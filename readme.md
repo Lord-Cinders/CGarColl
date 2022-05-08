@@ -134,7 +134,7 @@ typedef struct stdd
 }stdd;
 ````
 
-We create and register a the above struct as a node by, 
+We create and register the above struct as a node by, 
 ````
 int main()
 {
