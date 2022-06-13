@@ -1,16 +1,16 @@
 # A Garbage Collector for C
-A tiny Grabage Collector for C which works on the basis of reachability of objects to detect memory leaks.
+A tiny Garbage Collector for C works based on the reachability of objects to detect memory leaks.
 
 ## Usage
-The library Provides two APIs for Dynamic memory allocation, they are:
+The Library provides two APIs for Dynamic memory allocation, they are:
 
 ````
 /* 
 // corresponds to calloc(size_t, size_t)
-// allocates 'n' units of contiguous memory blocks for an object of type "StructName"
-// creates an object record for the object and adds it the record to the database
-// link the object record to the structure record based on the "StructName"
-// returns the pointer to the allocated object if successful otherwise NULL 
+// allocates 'n' units of contiguous memory blocks for an object of type "StructName."
+// creates an object record for the object and adds the record to the database
+// link the object record to the structure record based on the "StructName."
+// returns the pointer to the allocated object if successful otherwise, NULL 
 */
 void * xcalloc(ObjectDbList * ObjectDb, size_t n, const char * StructName);
 ````
@@ -26,7 +26,7 @@ void * xcalloc(ObjectDbList * ObjectDb, size_t n, const char * StructName);
 */
 void xfree(void * ptr, ObjectDbList * list);
 ````
-And two other APIs to record an object as a root object, they are:
+And two other APIs to record an object as a root object are:
 
 ````
 /*
@@ -45,7 +45,7 @@ void RegisterObjectasRoot(ObjectDbList * list, void * ptr);
 ````
 
 The Library contains 3 data structures to keep track of and hold your object data.
-1. `StructDbList` - made out of StructDbNodes, where each node contains the information about a single `struct`. 
+1. `StructDbList` - made out of StructDbNodes, where each Node contains the information about a single `struct.` 
 
 ````
 struct StructDbNode
@@ -67,13 +67,13 @@ typedef struct StructDb
 
 }StructDbList;
 ````
-To store your structure, first, create a new `StructDbList` object and then initialize it
+To store your structure, create a new `StructDbList` object and initialize it.
 ````
 StructDbList * structlist = calloc(1, sizeof(StructDbList));
 InitBasicMLD(strlist);
 ````
-this snippet of code, creates a basic structure database list with primitive data types.
-the primitive data types allowed with this library are:
+This code snippet creates a basic structure database list with primitive data types.
+the primitive data types allowed with this Library are:
 ````
 uint8_t
 uint32_t
@@ -83,7 +83,7 @@ double
 char
 ````
 
-utility fuctions available for this structure are:
+utility functions available for this structure are:
 ````
 // print functions for debugging
 void printStructNode(StructDbNode * node);
@@ -92,11 +92,11 @@ void printStructList(StructDbList * list);
 // returns 0 if the node is successfully added otherwise 1.
 int StructInsertIntoDb(StructDbList * list, StructDbNode * node);
 
-// searchs the table for a struct and returns the pointer to the node if found otherwise NULL
+// searches the table for a struct and returns the pointer to the Node. If found otherwise, NULL.
 StructDbNode * StructLookUp(StructDbList * list, const char * StructName);
 ````
 
-2. `Fields` - This data structure allows to store information about individual data members of a `struct`
+2. `Fields` - This data structure allows you to store information about individual data members of a `struct.`
 
 ````
 typedef struct Fields
@@ -109,12 +109,12 @@ typedef struct Fields
 
 }FieldsNode;
 ````
-utility fuctions available for this structure are:
+utility functions available for this structure are:
 ````
 void printField(FieldsNode node);
 ````
 
-To link the fields of a `struct` with its node, first, create an array of `FieldNodes` containing the initialization arrays of individual nodes using the macro `FIELDINFO(Struct, Fieldname, type, nestedstruct)`
+To link the fields of a `struct` with its Node, first, create an array of `FieldNodes` containing the initialization arrays of individual nodes using the macro `FIELDINFO(Struct, Fieldname, type, nestedstruct).`
 
 ````
 FieldsNode fieldarray[] = {
@@ -123,7 +123,7 @@ FieldsNode fieldarray[] = {
     };
 ````
 
-To register your Node, use the macro `#define REGSTRUCT(list, Struct, Fieldinfo)`.
+To register your Node, use the macro `#define REGSTRUCT(list, Struct, Fieldinfo).`
 
 For example, take a structure:
 ````
@@ -150,7 +150,7 @@ int main()
 
 ````
 
-3. `ObjectDbList` - Similar to `StructDbList`, is made out of `ObjectDbNode`, where each node represents a dynamically created object in your application.
+3. `ObjectDbList` - Similar to `StructDbList,` it is made out of `ObjectDbNode,` where each Node represents a dynamically created object in your application.
 
 ````
 struct ObjectDbnode
@@ -174,15 +174,15 @@ typedef struct ObjectDb
 
 }ObjectDbList;
 ````
-The List is created and initialized using `InitObjList(StructDbList * list)` 
+The List is created and initialized using `InitObjList(StructDbList * list).` 
 
 ````
 ObjectDbList * objlist = InitObjList(strlist);
 ````
 
-The nodes are dynamically added and deleted when the application calls `xcalloc` and `xfree`.
+The nodes are added dynamically and deleted when the application calls `xcalloc` and `xfree.`
 
-utility fuctions available for this structure are:
+utility functions available for this structure are:
 ````
 // print functions for debugging
 void printObjNode(ObjectDbnode * node);
@@ -194,11 +194,11 @@ void DumpObjectNode(ObjectDbnode * node);
 // returns 0 if the node is successfully added otherwise 1.
 int ObjInsertIntoDb(ObjectDbList * list, ObjectDbnode * node);
 
-// searchs the table for an object pointer and returns the pointer if found otherwise NULL
+// searches the table for an object pointer and returns the pointer if found otherwise, NULL
 ObjectDbnode * ObjectLookUp(ObjectDbList * list, void * ptr);
 ````
 
-To detect Memory Leaks, The library provides the function `MLDRun(ObjectDbList * list)`, which detects and reports leaked objects inside memory.
+To detect Memory Leaks, The Library provides the function `MLDRun(ObjectDbList * list)`, which detects and reports leaked objects inside the memory.
 
 For example, consider
 ````
@@ -240,7 +240,11 @@ int main()
 
 ````
 
-At the end of the run, the funtion `MLDRun` reports the object we intentionally leaked along with all of its information.
+At the end of a run, the function `MLDRun` reports the object we intentionally leaked along with all of its information.
 
 ## Building and Linking
-To create an object file of the library just use the Makefile provided along with the code and run the `make` command. link the object file to your compiler path and include the header file to your application to start using the library.
+To create an object file of the Library, use the Makefile provided along with the code and run the `make` command. Link the object file to your compiler path and include the header file in your application to start using the Library.
+
+## Limitations
+This project is also a retrospect of why a java like garbage collector would fail for languages such as c/cpp.<br>
+it's easy to fake memory leaks or fool the algorithm with some c/cpp-specific features not present in java.
